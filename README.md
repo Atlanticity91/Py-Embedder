@@ -18,3 +18,6 @@ For linux simply use `Launch-Linux.sh`, you should also make sure you have the r
 ```
 chmod +x Launch-Linux.sh
 ```
+
+## Documentation
+Documentation for the library can be found under [Documentation/index.html](https://atlanticity91.github.io/Py-Embedder/)
