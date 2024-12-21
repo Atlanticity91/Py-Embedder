@@ -208,8 +208,9 @@ def generate_combine_list( directory_path, embed_path ) :
 			file_name = file.name.split( '.' )[ 0 ]
 			file_name = re.sub( "[\/\\.-]", "_", file_name )
 			file_size = get_file_size( file.path )
-			file_list.append( ( file_name, file_size ) )
 
+			file_list.append( ( file_name, length ) )
+			
 			length += file_size
 			count += 1
 
