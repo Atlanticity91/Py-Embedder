@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+# --- INCLUDES ---
 import os
 import re
 
-# --- FUNCTION DECLARATION
+# --- FUNCTION DECLARATION ---
 '''
 	get_file_size function
 	@note : Wrapper for acquiring file size.
@@ -297,21 +298,28 @@ def has_path_argument( arguments ):
 def print_command( command, format ):
 	print( "> Use '{0}{1}".format( command, format ) )
 
+'''
+'''
+def print_help( ) :
+	print_command( "", " path/to/file.xxx' for simple file embedding.")
+	print_command( CMD_QUIT, "' for quiting." )
+	print_command( CMD_DIRECTORY, " path/to/directory/' for generating embed file for a directory." )
+	print_command( CMD_COMBINE, " path/to/directory/' for generating one embed file for a directory." )
+	print_command( CMD_HELP, "' for printing help for command usage." )
+
 # --- COMMAND LIST ---
+CMD_HELP = "-h"
 CMD_QUIT = "-q"
 CMD_DIRECTORY = "-d"
 CMD_COMBINE = "-c"
 
-# --- PRETTY HEADER ---
-print( "=== PY Embeder ===" )
-print( "> For single file ")
-print_command( CMD_QUIT, "' for quiting." )
-print_command( CMD_DIRECTORY, " path' for generating embed file for a directory." )
-print_command( CMD_COMBINE, " path' for generating one embed file for a directory." )
-print( "" )
-
 # --- MAIN LOOP ---
 if __name__ == '__main__':
+	print( "=== PY Embeder ===" )
+	print( "> Utility tool for generating C99 header for embedded files.\n" )
+	
+	print_help( )
+
 	while True :
 		arguments = input( "> " ).split( ' ' )
 	
@@ -327,6 +335,8 @@ if __name__ == '__main__':
 			if has_path_argument( arguments ) :
 				for argument_id in range( 1, len( arguments ) ):
 					generate_embed_combine( arguments[ argument_id ] )
+		elif arguments[ 0 ] == CMD_HELP :
+			print_help( )
 		else :
 			for file_path in arguments :
 				generate_embed_file( file_path )
