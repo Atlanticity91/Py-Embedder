@@ -1,6 +1,6 @@
 # Py-Embedder
 ---
-Py-Embedder is a utility tool for generating C header for embedded files. Writed in python for simplicity and portability. The entire utility code can be found on the `py_embedder.py` file located at repository root.
+Py-Embedder is a utility tool for generating C header for embedded files. Writed in python for simplicity and portability. The entire utility code can be found in the `py_embedder.py` file located at repository root.
 
 # Cloning
 Using [git-cli](https://git-scm.com/) :
