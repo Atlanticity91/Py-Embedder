@@ -311,21 +311,22 @@ print_command( CMD_COMBINE, " path' for generating one embed file for a director
 print( "" )
 
 # --- MAIN LOOP ---
-while True :
-	arguments = input( "> " ).split( ' ' )
-
-	if arguments[ 0 ] == CMD_QUIT :
-		print( "> Bye" )
-
-		break
-	elif arguments[ 0 ] == CMD_DIRECTORY :
-		if has_path_argument( arguments ) :
-			for argument_id in range( 1, len( arguments ) ):
-				generate_embed_directory( arguments[ argument_id ] )
-	elif arguments[ 0 ] == CMD_COMBINE :
-		if has_path_argument( arguments ) :
-			for argument_id in range( 1, len( arguments ) ):
-				generate_embed_combine( arguments[ argument_id ] )
-	else :
-		for file_path in arguments :
-			generate_embed_file( file_path )
+if __name__ == '__main__':
+	while True :
+		arguments = input( "> " ).split( ' ' )
+	
+		if arguments[ 0 ] == CMD_QUIT :
+			print( "> Bye" )
+	
+			break
+		elif arguments[ 0 ] == CMD_DIRECTORY :
+			if has_path_argument( arguments ) :
+				for argument_id in range( 1, len( arguments ) ):
+					generate_embed_directory( arguments[ argument_id ] )
+		elif arguments[ 0 ] == CMD_COMBINE :
+			if has_path_argument( arguments ) :
+				for argument_id in range( 1, len( arguments ) ):
+					generate_embed_combine( arguments[ argument_id ] )
+		else :
+			for file_path in arguments :
+				generate_embed_file( file_path )
