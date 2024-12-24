@@ -299,6 +299,8 @@ def print_command( command, format ):
 	print( "> Use '{0}{1}".format( command, format ) )
 
 '''
+	print_help method
+ 	@note : Wrapper for printing commands information and usage.
 '''
 def print_help( ) :
 	print_command( "", " path/to/file.xxx' for simple file embedding.")
