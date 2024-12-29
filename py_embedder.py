@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # --- INCLUDES ---
+import argparse
 import os
 import re
 
@@ -31,7 +32,7 @@ def load_source( file_path ):
 
 		return file_path, file_size, file_data
 	except :
-		print( "> {0} can't be loaded.".format( file_path ) )
+		print( f"> {file_path} can't be loaded." )
 
 	return None
 
@@ -76,6 +77,15 @@ def get_guard( source_path ) :
 	
 	return guard.upper( )
 
+def write_embed_guard( file, source_path, guard ) :
+	file.write( f"/**\n * PY Embeder\n * Source : {source_path}\n **/\n" )
+	file.write( f"#ifndef {guard}_H_\n#define {guard}_H_\n\n" )
+	file.write( "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n" )
+
+def write_embed_header_file( file, source_size, name ) :
+	file.write( f"const unsigned long g_embed_{name}_size = {source_size};\n" )
+	file.write( f"const unsigned char g_embed_{name}_data[ {source_size} ] = {{\n\t" )
+
 '''
 	write_embed_header method
 	@note : Write embed file C99 header.
@@ -87,11 +97,8 @@ def write_embed_header( file, source_path, source_size ) :
 	guard = get_guard( source_path )
 	name = get_name( source_path )
 
-	file.write( "/**\n * PY Embeder\n * Source : {0}\n **/\n".format( source_path ) )
-	file.write( "#ifndef {0}_H_\n#define {0}_H_\n\n".format( guard ) )
-	file.write( "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n" )
-	file.write( "const unsigned long g_embed_{0}_size = {1};\n".format( name, source_size ) )
-	file.write( "const unsigned char g_embed_{0}_data[ {1} ] = {{\n\t".format( name, source_size  ) )
+	write_embed_guard( file, source_path, guard )
+	write_embed_header_file( file, source_size, name )
 
 '''
 	write_embed_content method
@@ -106,9 +113,9 @@ def write_embed_content( file, source_data, is_final ) :
 
 	for byte in source_data :
 		if ( byte_id == len( source_data ) - 1 ) and ( is_final == True ) :
-			file.write( "0x{:02X}".format( byte ) )
+			file.write( f"0x{byte:02X}" )
 		else :
-			file.write( "0x{:02X}, ".format( byte ) )
+			file.write( f"0x{byte:02X}, " )
 
 		byte_id += 1
 		column += 1
@@ -129,7 +136,7 @@ def write_embed_footer( file, source_path ) :
 
 	file.write( "\n};\n\n" )
 	file.write( "#ifdef __cplusplus\n};\n#endif\n\n" )
-	file.write( "#endif /* !{0}_H_ */\n".format( guard ) )
+	file.write( f"#endif /* !{guard}_H_ */\n" )
 
 '''
 	write_embed method
@@ -147,7 +154,7 @@ def write_embed( file_path, file_info ):
 
 		embed_file.close( )
 
-		print( "> Generated file :'{0}'".format( file_path ) )
+		print( f"> Generated file :'{file_path}'" )
 	except :
 		print( "> Failure during file writing." )
 
@@ -184,13 +191,13 @@ def generate_embed_file( file_path ) :
 '''
 def generate_embed_directory( directory_path ):
 	if not os.path.isdir( directory_path ) :
-		print( "> Specified path : {0} is not a directory.".format( directory_path ) )
+		print( f"> Specified path : {directory_path} is not a directory." )
 
 		return
 
 	for file in os.scandir( directory_path ):
 		if file.is_file( ) :
-			print( "> {0}".format( file.path ) )
+			print( f"> {file.path}" )
 
 			generate_embed_file( file.path )
 
@@ -225,7 +232,7 @@ def generate_combine_list( directory_path, embed_path ) :
 '''
 def generate_embed_combine( directory_path ):
 	if not os.path.isdir( directory_path ) :
-		print( "> Specified path : {0} is not a directory.".format( directory_path ) )
+		print( f"> Specified path : {directory_path} is not a directory." )
 
 		return
 
@@ -240,23 +247,22 @@ def generate_embed_combine( directory_path ):
 		embed_file = open( embed_path, "w" )
 		
 		# write basic header
-		embed_file.write( "/**\n * PY Embeder\n * Source : {0}\n **/\n".format( file_path ) )
-		embed_file.write( "#ifndef {0}_H_\n#define {0}_H_\n\n".format( name.upper( ) ) )
-		embed_file.write( "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n" )
+		write_embed_guard( embed_file, file_path, name.upper( ) )
+
 		embed_file.write( "// --- OFFSETS ---\n" )
 		
 		# Generate offsets list
 		for element in file_list :
-			embed_file.write( "const unsigned long g_embed_{0}_offset = {1};\n".format( element[ 0 ], element[ 1 ] ) )
+			embed_file.write( f"const unsigned long g_embed_{element[ 0 ]}_offset = {element[ 1 ]};\n" )
 		
 		# write blob data
 		embed_file.write( "\n// --- DATA BLOB ---\n" )
-		embed_file.write( "const unsigned long g_embed_{0}_size = {1};\n".format( name, length ) )
-		embed_file.write( "const unsigned char g_embed_{0}_data[ {1} ] = {{\n\t".format( name, length  ) )
+
+		write_embed_header_file( embed_file, length, name )
 
 		for file in os.scandir( directory_path ):
 			if file.is_file( ) and not ( file.path == embed_path ) :
-				print( "> {0}".format( file.path ) )
+				print( f"> {file.path}" )
 				
 				count -= 1
 				file_info = load_source( file.path )
@@ -271,7 +277,7 @@ def generate_embed_combine( directory_path ):
 
 		embed_file.close( )
 
-		print( "> Generated file :'{0}'".format( embed_path ) )
+		print( f"> Generated file :'{embed_path}'" )
 	except :
 		print( "> Failure during file writing." )
 
@@ -285,60 +291,29 @@ def has_path_argument( arguments ):
 	length = len( arguments )
 
 	if ( length < 2 ) :
-		print( "> Command '{0}' need at least one argument.".format( arguments[ 0 ] ) )
+		print( f"> Command '{arguments[ 0 ]}' need at least one argument." )
 
 	return length > 1
-
-'''
-	print_command method
-	@note : Wrapper for command print.
-	@param command : Query command name.
-	@param format : Query command usage formated.
-'''
-def print_command( command, format ):
-	print( "> Use '{0}{1}".format( command, format ) )
-
-'''
-	print_help method
- 	@note : Wrapper for printing commands information and usage.
-'''
-def print_help( ) :
-	print_command( "", " path/to/file.xxx' for simple file embedding.")
-	print_command( CMD_QUIT, "' for quiting." )
-	print_command( CMD_DIRECTORY, " path/to/directory/' for generating embed file for a directory." )
-	print_command( CMD_COMBINE, " path/to/directory/' for generating one embed file for a directory." )
-	print_command( CMD_HELP, "' for printing help for command usage." )
-
-# --- COMMAND LIST ---
-CMD_HELP = "-h"
-CMD_QUIT = "-q"
-CMD_DIRECTORY = "-d"
-CMD_COMBINE = "-c"
 
 # --- MAIN LOOP ---
 if __name__ == '__main__':
 	print( "=== PY Embeder ===" )
 	print( "> Utility tool for generating C99 header for embedded files.\n" )
-	
-	print_help( )
 
-	while True :
-		arguments = input( "> " ).split( ' ' )
-	
-		if arguments[ 0 ] == CMD_QUIT :
-			print( "> Bye" )
-	
-			break
-		elif arguments[ 0 ] == CMD_DIRECTORY :
-			if has_path_argument( arguments ) :
-				for argument_id in range( 1, len( arguments ) ):
-					generate_embed_directory( arguments[ argument_id ] )
-		elif arguments[ 0 ] == CMD_COMBINE :
-			if has_path_argument( arguments ) :
-				for argument_id in range( 1, len( arguments ) ):
-					generate_embed_combine( arguments[ argument_id ] )
-		elif arguments[ 0 ] == CMD_HELP :
-			print_help( )
-		else :
-			for file_path in arguments :
-				generate_embed_file( file_path )
+	parser = argparse.ArgumentParser( )
+
+	parser.add_argument( '-f', '--file', type=str, nargs='*', help='Generate embed file for a file or file list.' )
+	parser.add_argument( '-d', '--directory', type=str, nargs='*', help='Generate embed file for all files of a directory.' )
+	parser.add_argument( '-c', '--combine', type=str, nargs='*', help='Generate one embed file who contain all files of a directory.' )
+
+	arguments = parser.parse_args( )
+
+	if arguments.directory is not None :
+		for directory_path in arguments.directory :
+			generate_embed_directory( directory_path )
+	elif arguments.combine is not None :
+		for directory_path in arguments.combine :
+			generate_embed_combine( directory_path )
+	elif arguments.file is not None :
+		for file_path in arguments.file :
+			generate_embed_file( file_path )
