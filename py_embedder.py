@@ -77,11 +77,25 @@ def get_guard( source_path ) :
 	
 	return guard.upper( )
 
+'''
+	write_embed_guard method
+	@note : Write embed file comments and header guard.
+	@param file : Query embed file handle.
+	@param source_path : Query source file path.
+	@param guard : Query embed file guard name.
+'''
 def write_embed_guard( file, source_path, guard ) :
 	file.write( f"/**\n * PY Embeder\n * Source : {source_path}\n **/\n" )
 	file.write( f"#ifndef {guard}_H_\n#define {guard}_H_\n\n" )
 	file.write( "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n" )
 
+'''
+	write_embed_header_file method
+	@note : Write embed file byte array informations.
+	@param file : Query embed file handle.
+	@param source_size : Query source file size.
+	@param name : Query embed file array name.
+'''
 def write_embed_header_file( file, source_size, name ) :
 	file.write( f"const unsigned long g_embed_{name}_size = {source_size};\n" )
 	file.write( f"const unsigned char g_embed_{name}_data[ {source_size} ] = {{\n\t" )
